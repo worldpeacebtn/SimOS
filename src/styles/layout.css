@@ -9,4 +9,6 @@ html, body, #root {
   left:0;
   right:0;
   position:static;
+  width:100vw;
+  height:100vh;
 }
