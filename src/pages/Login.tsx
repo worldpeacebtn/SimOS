@@ -16,15 +16,21 @@ export default function Login(props: MacActions) {
     setPassword(e.target.value);
   };
 
-  const loginHandle = () => {
-    if (user.password === "42" || user.password === password) {
-      // not set password or password correct
-      props.setLogin(true);
-    } else if (password !== "42") {
-      // password not null and incorrect
-      setSign("Incorrect password");
+const loginHandle = () => {
+  // allow entering 42 or real password
+  if (password === "42" || password === user.password) {
+
+    props.setLogin(true);
+
+    // If the user typed 42 → open a special window
+    if (password === "42") {
+      props.openWindow("special");   // call your window system
     }
-  };
+
+  } else {
+    setSign("Incorrect password");
+  }
+};
 
   return (
     <div
