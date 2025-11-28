@@ -16,21 +16,21 @@ export default function Login(props: MacActions) {
     setPassword(e.target.value);
   };
 
-const loginHandle = () => {
-  // allow entering 42 or real password
-  if (password === "42" || password === user.password) {
-
-    props.setLogin(true);
-
-    // If the user typed 42 → open a special window
+  const loginHandle = () => {
+    // If user enters secret code 42
     if (password === "42") {
-      props.openWindow("special");   // call your window system
+      props.setLogin(true);
+      props.setAppOpen("networx", true); // <-- open any app instantly
+      return;
     }
 
-  } else {
-    setSign("Incorrect password");
-  }
-};
+    // Normal password login
+    if (password === user.password) {
+      props.setLogin(true);
+    } else {
+      setSign("II0");
+    }
+  };
 
   return (
     <div

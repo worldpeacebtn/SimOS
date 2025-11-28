@@ -1,10 +1,11 @@
 import React from "react";
 
 export interface MacActions {
-  setLogin: (value: boolean | ((prevVar: boolean) => boolean)) => void;
-  shutMac: (e: React.MouseEvent) => void;
-  restartMac: (e: React.MouseEvent) => void;
-  sleepMac: (e: React.MouseEvent) => void;
+  setLogin: (val: boolean) => void;
+  setAppOpen: (id: string, val: boolean) => void;
+  sleepMac: any;
+  restartMac: any;
+  shutMac: any;
 }
 
 export {
