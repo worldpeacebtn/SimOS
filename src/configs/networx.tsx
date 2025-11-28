@@ -13,8 +13,7 @@ const networx: TerminalData[] = [
         content: (
           <div className="py-1">
             <div>
-              Hi, this is Xiaohan Zou. I am a PhD student at the Computer Science and
-              Engineering department of Pennsylvania State University.
+              Hi, I'm a 0. Therefore u don't need 2 kn0w my story.
             </div>
           </div>
         )
@@ -130,4 +129,4 @@ const networx: TerminalData[] = [
   }
 ];
 
-export default networx;
+export default NetWorx;
