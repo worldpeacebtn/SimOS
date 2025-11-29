@@ -224,11 +224,6 @@ export default function NotepadApp() {
     });
   }
 
-  // Escape HTML helper
-  function escapeHtml(s: string) {
-    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-  }
-
   // Export PDF (A4, 2cm margins)
   async function exportPdf(note: Note) {
     const doc = new jsPDF({ unit: "mm", format: "a4" });
@@ -289,6 +284,21 @@ export default function NotepadApp() {
 
   function allowDrop(e: React.DragEvent) {
     e.preventDefault();
+  }
+
+  function insertAtCursor(text: string) {
+    if (!editorRef.current) return;
+    const textarea = editorRef.current;
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const before = textarea.value.substring(0, start);
+    const after = textarea.value.substring(end);
+    const newContent = before + text + after;
+    updateActiveContent(newContent);
+    setTimeout(() => {
+      textarea.selectionStart = textarea.selectionEnd = start + text.length;
+      textarea.focus();
+    }, 10);
   }
 
   // Insert image inline as markdown (data URL)
@@ -482,10 +492,14 @@ export default function NotepadApp() {
     }, [att.id]);
 
     if (!url) return <div className="p-2">Loading...</div>;
-    if (att.type.startsWith("image/")) {
-      return (
+    {
+      att.type.startsWith("image/") && (
         <div className="p-2">
-          <img src={url} alt={att.name} style={{ maxWidth: "100%" }} />
+          <img
+            src={url}
+            alt={att.name}
+            style={{ maxWidth: "300px", maxHeight: "200px" }}
+          />
           <div className="flex gap-2 mt-2">
             <button
               onClick={() =>
@@ -493,12 +507,18 @@ export default function NotepadApp() {
               }
               className="px-2 py-1 bg-yellow-600 rounded"
             >
-              Apply Burn
+              Burn
+            </button>
+            <button
+              onClick={() => insertAtCursor(`![${att.name}](id:${att.id})\n`)}
+              className="px-2 py-1 bg-green-600 rounded text-white"
+            >
+              Apply
             </button>
             <a
-              className="px-2 py-1 bg-blue-600 rounded text-white"
               href={url}
               download={att.name || "image.png"}
+              className="px-2 py-1 bg-blue-600 rounded text-white"
             >
               Download
             </a>
@@ -506,6 +526,7 @@ export default function NotepadApp() {
         </div>
       );
     }
+
     if (att.type.startsWith("video/")) {
       return (
         <div className="p-2">

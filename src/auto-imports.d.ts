@@ -17,6 +17,8 @@ declare global {
   const MenuItem: typeof import('./components/menus/base')['MenuItem']
   const MenuItemGroup: typeof import('./components/menus/base')['MenuItemGroup']
   const NetWorx: typeof import('./components/apps/NetWorx')['default']
+  const Notepad: typeof import('./components/apps/Notepad')['default']
+  const Notepad0: typeof import('./components/apps/Notepad0')['default']
   const Safari: typeof import('./components/apps/Safari')['default']
   const Spotlight: typeof import('./components/Spotlight')['default']
   const Terminal: typeof import('./components/apps/Terminal')['default']
