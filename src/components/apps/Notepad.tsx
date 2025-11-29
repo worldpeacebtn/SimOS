@@ -425,7 +425,7 @@ export default function NotepadApp() {
           <img
             src={url}
             alt={att.name}
-            style={{ maxWidth: "300px", maxHeight: "200px" }}
+            className="max-w-full max-h-40 object-contain rounded"
           />
           <div className="flex gap-2 mt-2">
             <button
@@ -448,7 +448,7 @@ export default function NotepadApp() {
     if (att.type.startsWith("video/"))
       return (
         <div className="p-2 pointer-events-auto">
-          <video src={url} controls style={{ maxWidth: "100%" }} />
+          <video src={url} controls className="w-full max-h-60 rounded object-contain" />
           <a
             className="mt-2 inline-block px-2 py-1 bg-blue-600 rounded text-white"
             href={url}
@@ -462,7 +462,7 @@ export default function NotepadApp() {
     if (att.type.startsWith("audio/"))
       return (
         <div className="p-2 pointer-events-auto">
-          <audio src={url} controls />
+          <audio src={url} controls className="w-full" />
           <a
             className="mt-2 inline-block px-2 py-1 bg-blue-600 rounded text-white"
             href={url}
@@ -648,16 +648,19 @@ export default function NotepadApp() {
           </div>
         </div>
 
-        <div className="flex-1 flex overflow-hidden">
+        <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
+          {/* Text Editor */}
           <textarea
             ref={editorRef}
             value={activeNote?.content || ""}
             onChange={(e) => updateActiveContent(e.target.value)}
-            className="w-1/2 p-4 bg-neutral-900 text-white outline-none resize-none"
+            className="w-full md:w-1/2 h-60 md:h-auto p-4 bg-neutral-900 text-white outline-none resize-none"
           />
-          <div className="flex-1 p-3 border-l border-neutral-800 overflow-auto">
+
+          {/* Attachments Panel */}
+          <div className="flex-1 p-3 border-t md:border-t-0 md:border-l border-neutral-800 overflow-auto flex flex-col gap-2 mt-2 md:mt-0 md:ml-2">
             {(activeNote?.attachments || []).map((att) => (
-              <div key={att.id} className="bg-neutral-800 rounded p-2 mb-2">
+              <div key={att.id} className="bg-neutral-800 rounded p-2 flex-shrink-0">
                 <AttachmentItem att={att} />
               </div>
             ))}
