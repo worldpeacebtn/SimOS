@@ -54,7 +54,7 @@ const STORAGE_KEY = "simos-notes-rich-v1";
 type Note = {
   id: string;
   title: string;
-  html: string;
+  html: string; // stored as HTML (Quill delta rendered)
   attachments?: { id: string; type: string; name?: string }[];
   updatedAt: number;
 };
@@ -103,15 +103,8 @@ export default function Notepad() {
   });
   const [activeId, setActiveId] = useState(notes[0].id);
   const [autosaveOn, setAutosaveOn] = useState(true);
-  const [title, setTitle] = useState(notes[0].title);
   const quillRef = useRef<ReactQuill | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-
-  const activeNote = notes.find((n) => n.id === activeId)!;
-
-  useEffect(() => {
-    setTitle(activeNote.title);
-  }, [activeId]);
 
   useEffect(() => {
     saveNotes(notes);
@@ -126,6 +119,8 @@ export default function Notepad() {
     }, 3000);
     return () => clearInterval(t);
   }, [autosaveOn, activeId]);
+
+  const activeNote = notes.find((n) => n.id === activeId)!;
 
   /* ---------- Editor handlers ---------- */
   function onChangeHtml(html: string) {
@@ -156,6 +151,7 @@ export default function Notepad() {
 
   /* --------- Custom image handler for Quill --------- */
   async function handleImageInsert() {
+    // open file picker
     const input = document.createElement("input");
     input.type = "file";
     input.accept = "image/*";
@@ -164,6 +160,7 @@ export default function Notepad() {
       if (!file) return;
       const id = uid("att-");
       await idbPut(id, file);
+      // add attachment meta
       setNotes((s) =>
         s.map((n) =>
           n.id === activeId
@@ -178,8 +175,10 @@ export default function Notepad() {
             : n
         )
       );
+      // insert an <img src="id:att-xxx"> placeholder into html (we will resolve on export or render)
       const editor = (quillRef.current as any).getEditor();
       const range = editor.getSelection(true);
+      // insert custom image tag with a data-attribute referencing id
       const node = `<img src="id:${id}" alt="${file.name}" />`;
       editor.clipboard.dangerouslyPasteHTML(range.index, node);
     };
@@ -218,7 +217,7 @@ export default function Notepad() {
     input.click();
   }
 
-  /* --------- Media recorder ---------- */
+  /* --------- Media recorder (camera/audio) ---------- */
   const mediaChunks: BlobPart[] = [];
   let mediaRecorder: MediaRecorder | null = null;
 
@@ -243,13 +242,18 @@ export default function Notepad() {
                   ...n,
                   attachments: [
                     ...(n.attachments || []),
-                    { id, type: blob.type, name: `${kind}-${Date.now()}.webm` }
+                    {
+                      id,
+                      type: blob.type,
+                      name: `${kind}-${Date.now()}.${kind === "audio" ? "webm" : "webm"}`
+                    }
                   ],
                   updatedAt: Date.now()
                 }
               : n
           )
         );
+        // insert video/audio tag
         const editor = (quillRef.current as any).getEditor();
         const range = editor.getSelection(true);
         const node =
@@ -271,12 +275,10 @@ export default function Notepad() {
     mediaRecorder?.stop();
   }
 
-  /* --------- Drag & Drop files ---------- */
+  /* --------- Drag & Drop files (attach) ---------- */
   async function handleDrop(e: React.DragEvent) {
     e.preventDefault();
     const files = Array.from(e.dataTransfer.files);
-    const editor = quillRef.current?.getEditor();
-    const range = editor?.getSelection(true) ?? { index: 0 };
     for (const f of files) {
       const id = uid("att-");
       await idbPut(id, f);
@@ -294,10 +296,15 @@ export default function Notepad() {
             : n
         )
       );
+      // optionally insert inline if image/video
       if (f.type.startsWith("image/")) {
-        editor?.clipboard.dangerouslyPasteHTML(range.index, `<img src="id:${id}" />`);
+        const editor = (quillRef.current as any).getEditor();
+        const range = editor.getSelection(true);
+        editor.clipboard.dangerouslyPasteHTML(range.index, `<img src="id:${id}" />`);
       } else if (f.type.startsWith("video/")) {
-        editor?.clipboard.dangerouslyPasteHTML(
+        const editor = (quillRef.current as any).getEditor();
+        const range = editor.getSelection(true);
+        editor.clipboard.dangerouslyPasteHTML(
           range.index,
           `<video controls src="id:${id}"></video>`
         );
@@ -309,9 +316,10 @@ export default function Notepad() {
     e.preventDefault();
   }
 
-  /* ---------- Export HTML ---------- */
+  /* ---------- Export HTML: replaces id:... src references with data URLs ---------- */
   async function exportHtml(note: Note) {
     let html = note.html;
+    // Find all id:... occurrences for images/videos/audio
     const idMatches = Array.from(html.matchAll(/src="id:([^"]+)"/g)).map((m) => m[1]);
     const unique = Array.from(new Set(idMatches));
     for (const attId of unique) {
@@ -334,7 +342,7 @@ export default function Notepad() {
     URL.revokeObjectURL(url);
   }
 
-  /* ---------- Export TXT ---------- */
+  /* ---------- Export TXT (strip html) ---------- */
   function exportTxt(note: Note) {
     const tmp = document.createElement("div");
     tmp.innerHTML = note.html;
@@ -348,8 +356,9 @@ export default function Notepad() {
     URL.revokeObjectURL(url);
   }
 
-  /* ---------- Export PDF ---------- */
+  /* ---------- PDF (render HTML to simple paginated text) ---------- */
   async function exportPdf(note: Note) {
+    // We inline attachments as data URLs then use jsPDF simple text flow
     let html = note.html;
     const idMatches = Array.from(html.matchAll(/src="(id:[^"]+)"/g)).map((m) => m[1]);
     const unique = Array.from(new Set(idMatches));
@@ -361,6 +370,7 @@ export default function Notepad() {
         html = html.replaceAll(`src="id:${attId}"`, `src="${dataUrl}"`);
       }
     }
+    // convert HTML -> plain text for now (optionally snapshot as canvas for WYSIWYG)
     const tmp = document.createElement("div");
     tmp.innerHTML = html;
     const txt = tmp.innerText;
@@ -381,16 +391,26 @@ export default function Notepad() {
     doc.save(`${note.title || "note"}.pdf`);
   }
 
-  /* ---------- Toolbar handlers ---------- */
+  /* ---------- Toolbar handlers wiring ---------- */
+  function imageHandler() {
+    handleImageInsert();
+  }
+  function videoHandler() {
+    handleVideoInsert();
+  }
+
+  /* ---------- Customize Quill modules ---------- */
   const modules = {
     toolbar: {
       container: toolbarOptions,
       handlers: {
-        image: handleImageInsert,
-        video: handleVideoInsert
+        image: imageHandler,
+        video: videoHandler
       }
     },
-    clipboard: { matchVisual: false }
+    clipboard: {
+      matchVisual: false
+    }
   };
 
   /* ---------- Render ---------- */
@@ -538,11 +558,12 @@ export default function Notepad() {
       <div className="flex-1 flex flex-col" onDragOver={allowDrop} onDrop={handleDrop}>
         <div className="p-2 border-b border-neutral-800 flex items-center gap-2">
           <input
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            onBlur={() =>
+            value={activeNote.title}
+            onChange={(e) =>
               setNotes((s) =>
-                s.map((n) => (n.id === activeNote.id ? { ...n, title } : n))
+                s.map((n) =>
+                  n.id === activeNote.id ? { ...n, title: e.target.value } : n
+                )
               )
             }
             className="bg-neutral-800 px-2 py-1 rounded flex-1"
@@ -581,11 +602,11 @@ export default function Notepad() {
             />
           </div>
 
-          {/* Attachment previews on the right */}
+          {/* Attachment previews on the right on wide screens */}
           <div className="hidden md:block w-80 bg-neutral-950 p-3 overflow-auto">
-            <h4 className="font-semibold mb-2">Attachments (drag into editor)</h4>
+            <h4 className="font-semibold mb-2">Attachments</h4>
             {(activeNote.attachments || []).map((a) => (
-              <DraggableAttachment key={a.id} att={a} quillRef={quillRef} />
+              <AttachmentView key={a.id} att={a} />
             ))}
           </div>
         </div>
@@ -594,17 +615,9 @@ export default function Notepad() {
   );
 }
 
-/* ---------- Draggable Attachment Component ---------- */
-function DraggableAttachment({
-  att,
-  quillRef
-}: {
-  att: { id: string; type: string; name?: string };
-  quillRef: React.RefObject<ReactQuill>;
-}) {
+/* ---------- Attachment preview component ---------- */
+function AttachmentView({ att }: { att: { id: string; type: string; name?: string } }) {
   const [url, setUrl] = useState<string | null>(null);
-  const [expanded, setExpanded] = useState(false);
-
   useEffect(() => {
     let mounted = true;
     (async () => {
@@ -622,27 +635,56 @@ function DraggableAttachment({
       if (url) URL.revokeObjectURL(url);
     };
   }, [att.id]);
-
-  if (!url) return <div className="p-1">Loading...</div>;
-
-  const commonProps = {
-    className: `rounded cursor-pointer transition-all ${expanded ? "max-w-full max-h-[400px]" : "max-w-[120px] max-h-[80px]"}`,
-    onClick: () => setExpanded((x) => !x),
-    draggable: true,
-    onDragStart: (e: React.DragEvent) => {
-      e.dataTransfer.setData("text/plain", att.id);
-    }
-  };
-
-  if (att.type.startsWith("image/"))
-    return <img src={url} alt={att.name} {...commonProps} />;
-  if (att.type.startsWith("video/")) return <video src={url} controls {...commonProps} />;
-  if (att.type.startsWith("audio/"))
-    return <audio src={url} controls className="w-full" />;
-
+  if (!url) return <div className="p-2">Loading...</div>;
+  if (att.type.startsWith("image/")) {
+    return (
+      <div className="mb-3">
+        <img src={url} alt={att.name} className="max-w-full rounded" />
+        <div className="flex gap-2 mt-2">
+          <a
+            className="px-2 py-1 bg-blue-600 rounded text-white"
+            href={url}
+            download={att.name || "image.png"}
+          >
+            Download
+          </a>
+        </div>
+      </div>
+    );
+  }
+  if (att.type.startsWith("video/")) {
+    return (
+      <div className="mb-3">
+        <video src={url} controls className="max-w-full rounded" />
+        <a
+          className="mt-2 inline-block px-2 py-1 bg-blue-600 rounded text-white"
+          href={url}
+          download={att.name || "video.webm"}
+        >
+          Download
+        </a>
+      </div>
+    );
+  }
+  if (att.type.startsWith("audio/")) {
+    return (
+      <div className="mb-3">
+        <audio src={url} controls />
+        <a
+          className="mt-2 inline-block px-2 py-1 bg-blue-600 rounded text-white"
+          href={url}
+          download={att.name || "audio.webm"}
+        >
+          Download
+        </a>
+      </div>
+    );
+  }
   return (
-    <a href={url} download className="text-blue-400 block">
-      {att.name || "file"}
-    </a>
+    <div className="mb-3">
+      <a href={url} download className="text-blue-400">
+        {att.name || "file"}
+      </a>
+    </div>
   );
 }
