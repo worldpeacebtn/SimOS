@@ -196,7 +196,7 @@ export default function NotepadApp() {
                   ...(note.attachments || []),
                   { id, type: mime, name: file.name }
                 ],
-                content: note.content + `\n![${file.name}](id:${id})\n`,
+                content: note.content,
                 updatedAt: Date.now()
               }
             : note
@@ -316,31 +316,25 @@ export default function NotepadApp() {
   // Export HTML with inline attachments
   async function exportHtml(note: Note) {
     let html = escapeHtml(note.content).replace(/\n/g, "<br/>");
-    if (note.attachments?.length) {
-      for (const att of note.attachments) {
-        const val = await idbGet(att.id);
-        if (!val) continue;
-        let dataUrl = "";
-        if (val instanceof Blob) dataUrl = await blobToDataURL(val);
-        else if (typeof val === "string") dataUrl = val;
 
-        if (att.type.startsWith("image/"))
-          html = html.replace(
-            new RegExp(`!\\[.*?\\]\\(id:${att.id}\\)`, "g"),
-            `<img src="${dataUrl}" alt="${att.name || ""}" />`
-          );
-        else if (att.type.startsWith("video/"))
-          html = html.replace(
-            new RegExp(`!\\[.*?\\]\\(id:${att.id}\\)`, "g"),
-            `<video controls src="${dataUrl}"></video>`
-          );
-        else if (att.type.startsWith("audio/"))
-          html = html.replace(
-            new RegExp(`!\\[.*?\\]\\(id:${att.id}\\)`, "g"),
-            `<audio controls src="${dataUrl}"></audio>`
-          );
-      }
+    html += "<hr/>";
+
+    for (const att of note.attachments || []) {
+      const val = await idbGet(att.id);
+      if (!val) continue;
+
+      let dataUrl = "";
+      if (val instanceof Blob) dataUrl = await blobToDataURL(val);
+      else if (typeof val === "string") dataUrl = val;
+
+      if (att.type.startsWith("image/"))
+        html += `<img src="${dataUrl}" style="max-width:100%;margin-top:10px;" />`;
+      else if (att.type.startsWith("video/"))
+        html += `<video controls src="${dataUrl}" style="max-width:100%;margin-top:10px;"></video>`;
+      else if (att.type.startsWith("audio/"))
+        html += `<audio controls src="${dataUrl}" style="margin-top:10px;"></audio>`;
     }
+
     const full = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${note.title}</title></head><body>${html}</body></html>`;
     const blob = new Blob([full], { type: "text/html" });
     const url = URL.createObjectURL(blob);
@@ -434,6 +428,7 @@ export default function NotepadApp() {
             >
               Apply
             </button>
+
             <a
               href={url}
               download={att.name || "image.png"}
@@ -652,7 +647,7 @@ export default function NotepadApp() {
           {/* Text Editor */}
           <textarea
             ref={editorRef}
-            value={activeNote?.content || ""}
+            value={(activeNote?.content || "").replace(/!\[.*?\]\(id:att-[^)]+\)/g, "")}
             onChange={(e) => updateActiveContent(e.target.value)}
             className="w-full md:w-1/2 h-60 md:h-auto p-4 bg-neutral-900 text-white outline-none resize-none"
           />
