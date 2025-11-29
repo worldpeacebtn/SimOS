@@ -13,7 +13,7 @@ const networx: TerminalData[] = [
         content: (
           <div className="py-1">
             <div>
-              Hi, I'm a 0. Therefore u don't need 2 kn0w my story.
+              Hi, I'm a 0. Therefore u don't need 2 kn0w my story...
             </div>
           </div>
         )
