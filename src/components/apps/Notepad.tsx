@@ -312,7 +312,7 @@ export default function Notepad() {
   /* ---------- Export HTML ---------- */
   async function exportHtml(note: Note) {
     let html = note.html;
-    const idMatches = Array.from(html.matchAll(/src="id:([^"]+)"/g)).map((m) => m[1]);
+const idMatches = Array.from(html.matchAll(/src="id:([^"]+)"/g)).map(m => m[1]);
     const unique = Array.from(new Set(idMatches));
     for (const attId of unique) {
       const val = await idbGet(attId);
