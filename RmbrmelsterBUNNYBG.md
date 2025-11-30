@@ -409,24 +409,32 @@ export default function BunnyBackgroundProvider({ theme, children }) {
 6) bg.css
 
 /* src/components/bg/bg.css */
-
 .bg-root {
   position: fixed;
-  inset: 0;
-  overflow: hidden;
-  z-index: 0;
-  pointer-events: none;
-  will-change: transform;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;        /* push behind all other content */
+  overflow: hidden;   /* optional: hide overflow from particles, etc */
+  pointer-events: none; /* so it doesn’t block clicks */
 }
+
 
 /* dark */
 .bg-dark {
   background: radial-gradient(ellipse at center, #1a0810 0%, #050205 60%);
+      background-image: url('worldpeacebtn/SimOS/public/img/ui/wallpaper-night.jpg');
+  background-size: cover;
+  background-position: center;
 }
 
 /* ice / cold version */
 .bg-ice {
   background: radial-gradient(ellipse at center, #071428 0%, #00060a 60%);
+      background-image: url('worldpeacebtn/SimOS/public/img/ui/wallpaper-night.jpg');
+  background-size: cover;
+  background-position: center;
 }
 
 /* animated subtle nebula / glow area */
