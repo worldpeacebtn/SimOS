@@ -2,6 +2,15 @@ import React from "react";
 import { Rnd } from "react-rnd";
 import { minMarginX, minMarginY, appBarHeight } from "~/utils";
 
+function updateVh() {
+  document.documentElement.style.setProperty(
+    '--vh',
+    `${window.innerHeight * 0.01}px`
+  );
+}
+updateVh();
+window.addEventListener('resize', updateVh);
+
 const FullIcon = ({ size }: { size: number }) => (
   <svg
     className="icon"
