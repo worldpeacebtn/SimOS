@@ -83,7 +83,7 @@ const apps: AppsData[] = [
     id: "networx",
     title: "NETWORX",
     desktop: true,
-    img: "img/icons/facetime.png",
+    img: "img/icons/networx42.png",
     width: 500 * 1.7,
     height: 500 + appBarHeight,
     minWidth: 350 * 1.7,
