@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { createRoot } from "react-dom/client";
 
 import Desktop from "~/pages/Desktop";
 import Login from "~/pages/Login";
 import Boot from "~/pages/Boot";
+
+import BunnyBackgroundProvider from "~/components/bg/BunnyBackgroundProvider";
 
 import "@unocss/reset/tailwind.css";
 import "uno.css";
@@ -68,6 +70,8 @@ const root = createRoot(rootElement);
 
 root.render(
   <React.StrictMode>
-    <App />
+    <BunnyBackgroundProvider>
+      <App />
+    </BunnyBackgroundProvider>
   </React.StrictMode>
 );
