@@ -16,7 +16,7 @@
 html, body {
   margin: 0;
   padding: 0;
-  height: 100%;
+  height: 100vh;
   overflow: hidden;       /* prevent the overall page from scrolling */
 }
 
@@ -26,8 +26,9 @@ html, body {
 }
 
 #root, #desktop {  /* adjust selectors to your root/desktop container IDs */
-  width: 100vw;
-  height: calc(var(--vh) * 100);
+  width: 100%;
+  height: 100vh;
+  /*height: calc(var(--vh) * 100);*/
   overflow: hidden;       /* desktop container fixed, no overflow on the large page */
   position: relative;
 }
@@ -47,8 +48,8 @@ textarea, input {
 
 /* Define a scrollable container inside each app/window content area */
 .window-content {
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow-y: scroll;
+  overflow-x: scroll;
   -webkit-overflow-scrolling: touch; /* smooth scrolling on iOS */
   height: 100%;      /* fill window */
   max-height: 100%;
@@ -56,7 +57,7 @@ textarea, input {
 
 /* Optional: style scrollbar (for better visibility) */
 .window-content::-webkit-scrollbar {
-  width: 6px;
+  width: 4.2px;
 }
 .window-content::-webkit-scrollbar-thumb {
   background: rgba(255,255,255,0.4);
