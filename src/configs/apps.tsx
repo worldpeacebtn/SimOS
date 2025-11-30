@@ -38,7 +38,6 @@ const apps: AppsData[] = [
     minWidth: 350 * 1.7,
     minHeight: 350 + appBarHeight,
     aspectRatio: 1.7,
-    borderRadius: 22,
     x: -80,
     y: 20,
     content: <NetWorx />
