@@ -20,6 +20,30 @@ const apps: AppsData[] = [
     content: <Bunny />
   },
   {
+    id: "notepad",
+    title: "BunPa",
+    desktop: true,
+    width: 600,
+    height: 500,
+    img: "img/icons/bunpa.png", // add an icon
+    content: <Notepad />
+  },
+  {
+    id: "networx",
+    title: "NETWORX",
+    desktop: true,
+    img: "img/icons/networx42.png",
+    width: 500 * 1.7,
+    height: 500 + appBarHeight,
+    minWidth: 350 * 1.7,
+    minHeight: 350 + appBarHeight,
+    aspectRatio: 1.7,
+    borderRadius: 22,
+    x: -80,
+    y: 20,
+    content: <NetWorx />
+  },
+  {
     id: "typora",
     title: "Typora",
     desktop: true,
@@ -78,29 +102,6 @@ const apps: AppsData[] = [
     desktop: false,
     img: "img/icons/github.png",
     link: "https://github.com/Renovamen/playground-macos"
-  },
-  {
-    id: "networx",
-    title: "NETWORX",
-    desktop: true,
-    img: "img/icons/networx42.png",
-    width: 500 * 1.7,
-    height: 500 + appBarHeight,
-    minWidth: 350 * 1.7,
-    minHeight: 350 + appBarHeight,
-    aspectRatio: 1.7,
-    x: -80,
-    y: 20,
-    content: <NetWorx />
-  },
-  {
-    id: "notepad",
-    title: "BunPa",
-    desktop: true,
-    width: 600,
-    height: 500,
-    img: "img/icons/bunpa.png", // add an icon
-    content: <Notepad />
   }
 ];
 
