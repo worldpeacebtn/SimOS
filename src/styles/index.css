@@ -3,3 +3,8 @@
 @import "./component.css";
 @import "./bunny.css";
 @import "./typora.css";
+
+/*try*/
+#dock-notepad > img {
+  border-radius:2rem;
+}
