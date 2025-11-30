@@ -79,8 +79,8 @@ export default function ControlCenterMenu({
             <span className="i-material-symbols:wifi text-base" />
           </div>
           <div p="t-0.5">
-            <div className="font-medium leading-4">Wi-Fi</div>
-            <div className="cc-text">{wifi ? "Home" : "Off"}</div>
+            <div className="font-medium leading-4">Net-Work</div>
+            <div className="cc-text">{wifi ? "✨🛰️" : "⛓️‍💥⚠️"}</div>
           </div>
         </div>
         <div className="hstack space-x-2">
@@ -116,7 +116,7 @@ export default function ControlCenterMenu({
             <span className="i-ion:sunny text-base" />
           )}
         </div>
-        <div font-medium>{dark ? "Dark Mode" : "Light Mode"}</div>
+        <div font-medium>{dark ? "Freeze Mode" : "Burn Mode"}</div>
       </div>
       <div className="cc-grid flex-center flex-col">
         <span className="i-bi:brightness-alt-high text-xl" />
