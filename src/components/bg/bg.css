@@ -1,0 +1,69 @@
+/* src/components/bg/bg.css */
+
+.bg-root {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  z-index: 0;
+  pointer-events: none;
+  will-change: transform;
+}
+
+/* dark */
+.bg-dark {
+  background: radial-gradient(ellipse at center, #1a0810 0%, #050205 60%);
+}
+
+/* ice / cold version */
+.bg-ice {
+  background: radial-gradient(ellipse at center, #071428 0%, #00060a 60%);
+}
+
+/* animated subtle nebula / glow area */
+.bg-gradient {
+  position: absolute;
+  left: -10%;
+  top: -20%;
+  width: 140%;
+  height: 140%;
+  background: radial-gradient(circle at 25% 30%, rgba(255,120,40,0.08), transparent 12%),
+              radial-gradient(circle at 70% 70%, rgba(255,80,20,0.12), transparent 10%);
+  filter: blur(36px);
+  z-index: 0;
+  mix-blend-mode: screen;
+}
+
+.bg-gradient-ice {
+  position: absolute;
+  left: -10%;
+  top: -20%;
+  width: 140%;
+  height: 140%;
+  background: radial-gradient(circle at 25% 30%, rgba(120,200,255,0.06), transparent 12%),
+              radial-gradient(circle at 70% 70%, rgba(100,160,255,0.08), transparent 10%);
+  filter: blur(36px);
+  z-index: 0;
+  mix-blend-mode: screen;
+}
+
+.bg-bottom-glow {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -10%;
+  height: 30vh;
+  background: radial-gradient(ellipse at center, rgba(255,120,30,0.12), transparent 40%);
+  z-index: 0;
+  filter: blur(40px);
+  pointer-events: none;
+}
+
+.bg-bottom-glow.ice {
+  background: radial-gradient(ellipse at center, rgba(100,190,255,0.12), transparent 40%);
+}
+
+/* small screen tweaks */
+@media (max-width: 720px) {
+  .bg-root { opacity: 0.95; }
+  svg { width: 80vw !important; left: 50% !important; transform: translateX(-50%) !important; }
+}
