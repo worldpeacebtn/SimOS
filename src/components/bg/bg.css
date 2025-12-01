@@ -77,3 +77,10 @@
   height: 100vh;
   overflow: hidden;
 }
+#bunny-bg-root{
+  z-index:100;
+}
+#root > div{
+  width:100vw;
+  height:100vh;
+}
