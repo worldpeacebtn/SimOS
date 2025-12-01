@@ -10,7 +10,7 @@ export default function Login(props: MacActions) {
   const [sign, setSign] = useState("Click to enter");
 
   const [selectedUser, setSelectedUser] = useState(users[0]); // default user
-
+  const setCurrentUser = useStore((s) => s.setCurrentUser);
   const dark = useStore((state) => state.dark);
 
   const keyPress = (e: React.KeyboardEvent) => {
@@ -31,6 +31,7 @@ export default function Login(props: MacActions) {
 
     // Multi-user login
     if (password === selectedUser.password) {
+      setCurrentUser(selectedUser); // store in Zustand
       props.setLogin(true);
       return;
     }

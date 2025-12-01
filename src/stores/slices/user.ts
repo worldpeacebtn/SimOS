@@ -3,11 +3,14 @@ import type { StateCreator } from "zustand";
 export interface UserSlice {
   typoraMd: string;
   setTyporaMd: (v: string) => void;
-  faceTimeImages: {
-    [date: string]: string;
-  };
+  faceTimeImages: { [date: string]: string };
   addFaceTimeImage: (v: string) => void;
   delFaceTimeImage: (k: string) => void;
+
+  // ⭐ Add current user fields ⭐
+  currentUser: { name: string; avatar: string } | null;
+  setCurrentUser: (user: { name: string; avatar: string }) => void;
+  clearCurrentUser: () => void;
 }
 
 export const createUserSlice: StateCreator<UserSlice> = (set) => ({
@@ -25,5 +28,10 @@ export const createUserSlice: StateCreator<UserSlice> = (set) => ({
       const images = state.faceTimeImages;
       delete images[k];
       return { faceTimeImages: images };
-    })
+    }),
+
+  // ⭐ New user state ⭐
+  currentUser: null,
+  setCurrentUser: (user) => set(() => ({ currentUser: user })),
+  clearCurrentUser: () => set(() => ({ currentUser: null }))
 });

@@ -13,6 +13,8 @@ interface TopBarItemProps {
   onMouseEnter?: () => void;
 }
 
+const currentUser = useStore((s) => s.currentUser);
+
 const TopBarItem = forwardRef(
   (props: TopBarItemProps, ref: React.ForwardedRef<HTMLDivElement>) => {
     const hide = props.hideOnMobile ? "hidden sm:inline-flex" : "inline-flex";
@@ -206,14 +208,15 @@ const TopBar = (props: TopBarProps) => {
         />
       )}
 
-      {state.showBXBMenu && (
+      {state.showBXBMenu && currentUser && (
         <BXBMenu
+          currentUser={currentUser}
           logout={logout}
           shut={shut}
           restart={restart}
           sleep={sleep}
           toggleBXBMenu={toggleBXBMenu}
-          btnRef={spotlightBtnRef} // or any button ref you want for clickOutside
+          btnRef={appleBtnRef}
         />
       )}
 
