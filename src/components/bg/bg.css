@@ -11,13 +11,16 @@
 
 /* dark */
 .bg-dark {
-  background: radial-gradient(ellipse at center, #1a0810 0%, #050205 60%);
+  /*background: radial-gradient(ellipse at center, #1a0810 0%, #050205 60%);*/
+    background: radial-gradient(ellipse at center, #07142117, #00060acc 60%);
+    opacity: 0.9;
 }
 
 /* ice / cold version */
 .bg-ice {
-  background: radial-gradient(ellipse at center, #071428 0%, #00060a 60%);
-}
+    background: radial-gradient(ellipse at center, #07142117, #00060acc 60%);
+    opacity: 0.9;
+  }
 
 /* animated subtle nebula / glow area */
 .bg-gradient {
