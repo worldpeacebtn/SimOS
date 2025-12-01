@@ -426,7 +426,7 @@ export default function NotepadApp() {
           <div className="flex gap-2 mt-2">
             <button
               onClick={() =>
-                editImage(att.id, { brightness: 1.2, hue: 20, overlay: "Burning Bunny" })
+                editImage(att.id, { brightness: 1.2, hue: 20, overlay: "BurningXBunny" })
               }
               className="px-2 py-1 bg-yellow-600 rounded"
             >
