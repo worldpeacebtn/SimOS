@@ -61,7 +61,7 @@ export default function Login(props: MacActions) {
 
               {/* User selector */}
         <select
-          className="mb-4 px-2 py-1 rounded bg-black/40 text-white text-sm backdrop-blur-lg"
+          className="mb-4 w-28 h-28 rounded-full flex items-center justify-center px-2 py-1 bg-black/40 text-white text-sm backdrop-blur-lg shadow-lg ring-0 focus:outline-none focus:ring-4 focus:ring-white/30 transition-transform transform hover:scale-105 active:scale-95"
           value={selectedUser.name}
           onChange={(e) => {
             const u = users.find((u) => u.name === e.target.value);
@@ -92,7 +92,7 @@ export default function Login(props: MacActions) {
           </div>
         </div>
 
-        <div mt-2 w-24 h-24 rounded-full bg-gray-800 text-gray-200 flex items-center justify-center text-sm cursor-pointer active:scale-95 transition-transform duration-150 text="sm gray-200">
+        <div mt-2 cursor-pointer text="sm gray-200">
           {sign}
         </div>
       </div>
