@@ -67,6 +67,8 @@ const TopBar = (props: TopBarProps) => {
   const currentUser = useStore((s) => s.currentUser);
 
   const appleBtnRef = useRef<HTMLDivElement>(null);
+  const bxbBtnRef = useRef<HTMLDivElement>(null);
+
   const controlCenterBtnRef = useRef<HTMLDivElement>(null);
   const wifiBtnRef = useRef<HTMLDivElement>(null);
   const spotlightBtnRef = useRef<HTMLDivElement>(null);
@@ -188,9 +190,7 @@ const TopBar = (props: TopBarProps) => {
         <TopBarItem
           className="font-semibold px-2"
           onClick={toggleBXBMenu}
-          onMouseEnter={() => {
-            if (state.showBXBMenu) toggleBXBMenu();
-          }}
+          ref={bxbBtnRef}
         >
           {props.title}
         </TopBarItem>
@@ -216,7 +216,7 @@ const TopBar = (props: TopBarProps) => {
           restart={restart}
           sleep={sleep}
           toggleBXBMenu={toggleBXBMenu}
-          btnRef={appleBtnRef}
+          btnRef={bxbBtnRef} // ✅ now correct
         />
       )}
 
