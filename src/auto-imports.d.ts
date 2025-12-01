@@ -7,6 +7,7 @@ export {}
 declare global {
   const AppWindow: typeof import('./components/AppWindow')['default']
   const AppleMenu: typeof import('./components/menus/AppleMenu')['default']
+  const BXBMenu: typeof import('./components/menus/BXBMenu')['default']
   const Battery: typeof import('./components/menus/Battery')['default']
   const Bunny: typeof import('./components/apps/Bunny')['default']
   const BunnyBackgroundProvider: typeof import('./components/bg/BunnyBackgroundProvider.jsx')['default']

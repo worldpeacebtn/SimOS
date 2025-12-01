@@ -8,17 +8,17 @@ const users: UserData[] = [
   },
   {
     name: "1",
-    avatar: "img/ui/avatar2.png",
+    avatar: "img/ui/avatar1.png",
     password: "41"
   },
   {
     name: "2",
-    avatar: "img/ui/avatar3.png",
+    avatar: "img/ui/avatar2.png",
     password: "42"
   },
   {
     name: "3",
-    avatar: "img/ui/avatar4.png",
+    avatar: "img/ui/avatar3.png",
     password: "43"
   }
 ];

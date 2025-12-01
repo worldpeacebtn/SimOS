@@ -23,9 +23,8 @@ const TopBarItem = forwardRef(
     return (
       <div
         ref={ref}
-        className={`hstack space-x-1 h-6 px-1 cursor-default rounded ${hide} ${bg} ${
-          props.className || ""
-        }`}
+        className={`hstack space-x-1 h-6 px-1 cursor-default rounded 
+ ${hide} ${bg} ${props.className || ""}`}
         onClick={props.onClick}
         onMouseEnter={props.onMouseEnter}
       >
@@ -61,6 +60,7 @@ interface TopBarState {
   showControlCenter: boolean;
   showWifiMenu: boolean;
   showAppleMenu: boolean;
+  showBXBMenu: boolean;
 }
 
 const TopBar = (props: TopBarProps) => {
@@ -73,7 +73,8 @@ const TopBar = (props: TopBarProps) => {
     date: new Date(),
     showControlCenter: false,
     showWifiMenu: false,
-    showAppleMenu: false
+    showAppleMenu: false,
+    showBXBMenu: false
   });
 
   /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
@@ -133,6 +134,13 @@ const TopBar = (props: TopBarProps) => {
     });
   };
 
+  const toggleBXBMenu = (): void => {
+    setState({
+      ...state,
+      showBXBMenu: !state.showBXBMenu
+    });
+  };
+
   const toggleWifiMenu = (): void => {
     setState({
       ...state,
@@ -177,8 +185,9 @@ const TopBar = (props: TopBarProps) => {
         </TopBarItem>
         <TopBarItem
           className="font-semibold px-2"
+          onClick={toggleBXBMenu}
           onMouseEnter={() => {
-            if (state.showAppleMenu) toggleAppleMenu();
+            if (state.showBXBMenu) toggleBXBMenu();
           }}
         >
           {props.title}
@@ -197,8 +206,19 @@ const TopBar = (props: TopBarProps) => {
         />
       )}
 
+      {state.showBXBMenu && (
+        <BXBMenu
+          logout={logout}
+          shut={shut}
+          restart={restart}
+          sleep={sleep}
+          toggleBXBMenu={toggleBXBMenu}
+          btnRef={spotlightBtnRef} // or any button ref you want for clickOutside
+        />
+      )}
+
       <div className="hstack flex-row justify-end space-x-2">
-        <TopBarItem hideOnMobile={true}>
+        <TopBarItem hideOnMobile={true} className="pointer-events-none">
           <Battery />
         </TopBarItem>
         <TopBarItem
@@ -241,7 +261,7 @@ const TopBar = (props: TopBarProps) => {
           />
         )}
 
-        <TopBarItem>
+        <TopBarItem className="pointer-events-none">
           <span>{format(state.date, "eee MMM d")}</span>
           <span>{format(state.date, "h:mm aa")}</span>
         </TopBarItem>

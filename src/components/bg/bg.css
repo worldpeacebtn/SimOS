@@ -68,8 +68,8 @@
 /* small screen tweaks */
 @media (max-width: 720px) {
   .bg-root { opacity: 0.95; }
-  svg { width: 80vw !important; left: 50% !important; transform: translateX(-50%) !important; }
-}
+  /*svg { width: 80vw !important; left: 50% !important; transform: translateX(-50%) !important; }
+*/}
 .bunny-bg-container {
   position: fixed;
   inset: 0;

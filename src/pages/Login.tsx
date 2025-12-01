@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { wallpapers } from "~/configs";
 import users from "~/configs/users"; // <-- NEW MULTI-USER FILE
 import { useStore } from "~/stores";
 import type { MacActions } from "~/types";
 
 export default function Login(props: MacActions) {
+  const selectRef = React.useRef<HTMLSelectElement>(null);
   const [password, setPassword] = useState("");
   const [sign, setSign] = useState("Click to enter");
 
@@ -38,6 +39,25 @@ export default function Login(props: MacActions) {
     setSign("II0");
   };
 
+  // Auto-select user and/or auto-login
+  useEffect(() => {
+    // Pick default user (e.g., first user)
+    const defaultUser = users[0];
+    setSelectedUser(defaultUser);
+
+    // Optional: auto-fill password for that user
+    //  setPassword(defaultUser.password);
+
+    // Optional: auto-trigger login
+    // loginHandle(); // <-- uncomment if you want immediate login on load
+  }, []);
+
+  useEffect(() => {
+    if (selectRef.current) {
+      selectRef.current.focus();
+    }
+  }, []);
+
   return (
     <div
       className="size-full login text-center"
@@ -61,7 +81,8 @@ export default function Login(props: MacActions) {
         </div>
 
         <select
-          className="m-4.2 w-13 h-13 rounded-full items-center justify-self-center justify-center flex self-center text-center text-2xl p-0  bg-orange/23 text-white text-sm backdrop-blur-4 border-1 border-orange shadow-lg ring-0 focus:outline-none focus:ring- focus:ring-orange/30 transition-transform transform hover:scale-105 active:scale-95"
+          ref={selectRef}
+          className="m-4.2 w-13 h-13 rounded-full items-center justify-self-center justify-center flex self-center text-center text-2xl p-0 bg-orange/23 text-white text-sm backdrop-blur-4 border-1 border-orange shadow-lg ring-0 focus:outline-none transition-transform transform hover:scale-105 active:scale-95"
           value={selectedUser.name}
           onChange={(e) => {
             const u = users.find((u) => u.name === e.target.value);
