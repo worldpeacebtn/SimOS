@@ -2,34 +2,36 @@
 import React, { useEffect, useState, useRef } from "react";
 import { supabase } from "../../lib/supabase";
 
+interface User {
+  id: string;
+  name: string;
+  email?: string;
+  avatar?: string;
+}
+
 interface ChatProps {
-  currentUser: {
-    id: string;
-    name: string;
-    email?: string;
-    avatar_url?: string;
-  } | null;
+  currentUser: User | null;
 }
 
 export function Chat({ currentUser }: ChatProps) {
   const [msgs, setMsgs] = useState<any[]>([]);
   const [text, setText] = useState("");
   const [typing, setTyping] = useState(false);
-  const subRef = useRef<any>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const typingTimeout = useRef<any>(null);
+  const subRef = useRef<any>(null);
 
   // colors for users 0–3
   const userColors: Record<number, string> = {
-    0: "#9b59b6", // purple
-    1: "#3498db", // blue
-    2: "#2ecc71", // green
-    3: "#f1c40f" // yellow
+    0: "#9b59b6",
+    1: "#3498db",
+    2: "#2ecc71",
+    3: "#f1c40f"
   };
 
   const scrollToBottom = () => chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
 
-  // load messages + subscribe to realtime inserts
+  // load messages + subscribe to Supabase
   useEffect(() => {
     if (!currentUser) return;
 
@@ -62,14 +64,15 @@ export function Chat({ currentUser }: ChatProps) {
     };
   }, [currentUser]);
 
+  // send message
   const send = async () => {
     if (!currentUser || !text.trim()) return;
 
     const payload = {
       sender_id: currentUser.id,
       sender_name: currentUser.name,
-      text: text.trim(),
-      avatar_url: currentUser.avatar_url
+      avatar_url: currentUser.avatar,
+      text: text.trim()
     };
 
     try {
@@ -82,7 +85,8 @@ export function Chat({ currentUser }: ChatProps) {
     }
   };
 
-  const handleTyping = (e: any) => {
+  // typing indicator
+  const handleTyping = (e: React.ChangeEvent<HTMLInputElement>) => {
     setText(e.target.value);
     setTyping(true);
     if (typingTimeout.current) clearTimeout(typingTimeout.current);
@@ -97,7 +101,7 @@ export function Chat({ currentUser }: ChatProps) {
   };
 
   if (!currentUser) {
-    return <div style={{ padding: 20 }}>Please login to chat</div>;
+    return <div style={{ padding: 20 }}>Select a user to start chatting</div>;
   }
 
   return (
@@ -134,9 +138,7 @@ export function Chat({ currentUser }: ChatProps) {
             marginRight: 8
           }}
         >
-          {currentUser.name?.[0]?.toUpperCase() ||
-            currentUser.email?.[0]?.toUpperCase() ||
-            "?"}
+          {currentUser.name?.[0]?.toUpperCase() || "?"}
         </div>
         <div style={{ fontWeight: 600 }}>{currentUser.name}</div>
         {typing && (

@@ -12,9 +12,11 @@ import "uno.css";
 import "katex/dist/katex.min.css";
 import "~/styles/index.css";
 
+import users from "~/configs/users"; // your pre-created users
+
 export default function App() {
   const [login, setLogin] = useState<boolean>(false);
-  const [currentUser, setCurrentUser] = useState<any>(null); // add this
+  const [currentUser, setCurrentUser] = useState<any>(users[0]); // default user 0
   const [booting, setBooting] = useState<boolean>(false);
   const [restart, setRestart] = useState<boolean>(false);
   const [sleep, setSleep] = useState<boolean>(false);
@@ -59,8 +61,9 @@ export default function App() {
   } else {
     return (
       <Login
+        currentUser={currentUser} // <-- add this
+        setCurrentUser={setCurrentUser} // <-- add this
         setLogin={setLogin}
-        setCurrentUser={setCurrentUser} // <-- Login sets the logged-in user
         shutMac={shutMac}
         sleepMac={sleepMac}
         restartMac={restartMac}
