@@ -33,11 +33,6 @@ const apps: AppsData[] = [
     title: "NETWORX",
     desktop: true,
     img: "img/icons/networx42.png",
-    width: 90vw,
-    height: 90vh + appBarHeight,
-    minWidth: 350 * 1.7,
-    minHeight: 350 + appBarHeight,
-    aspectRatio: 1.7,
     x: -0,
     y: 20,
     content: <NetWorx />
@@ -46,8 +41,6 @@ const apps: AppsData[] = [
     id: "typora",
     title: "BunNote",
     desktop: true,
-    width: 90vw,
-    height: 90vh,
     y: -15,
     img: "img/icons/typora.png",
     content: <Typora />
