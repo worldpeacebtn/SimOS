@@ -8,7 +8,6 @@ Powered by [React](https://reactjs.org/) + [Zustand](https://zustand-demo.pmnd.r
 ![dark mode](./public/screenshots/dark.jpg)
 
 &nbsp;
-
 ©️honor 2 hero OC🫆
 
 # playground-macos
