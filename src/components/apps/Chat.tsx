@@ -1,96 +1,239 @@
 // src/apps/Chat.tsx
-import React, { useEffect, useState, useRef } from 'react'
-import { supabase } from '../../lib/supabase'
+import React, { useEffect, useState, useRef } from "react";
+import { supabase } from "../../lib/supabase";
 
-export function Chat({ currentUser }: { currentUser: any }) {
-  const [msgs, setMsgs] = useState<any[]>([])
-  const [text, setText] = useState('')
-  const subRef = useRef<any>(null)
-
-  useEffect(() => {
-    // load recent messages
-    const load = async () => {
-      const { data } = await supabase
-        .from('messages')
-        .select('*')
-        .order('created_at', { ascending: true })
-        .limit(200)
-      setMsgs(data ?? [])
-    }
-    load()
-
-    // subscribe realtime inserts
-    subRef.current = supabase
-      .channel('public:messages')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
-        setMsgs(prev => [...prev, payload.new])
-      })
-      .subscribe()
-
-    return () => {
-      if (subRef.current) supabase.removeChannel(subRef.current)
-    }
-  }, [])
-
-  const loginAsGuest = async () => {
-  const { data, error } = await supabase.auth.signInWithOtp({
-    email: `guest${Date.now()}@example.com`
-  })
-  if (error) return alert(error.message)
-  setCurrentUser({ id: data.user.id, email: data.user.email })
+interface ChatProps {
+  currentUser: {
+    id: string;
+    name: string;
+    email?: string;
+    avatar_url?: string;
+  } | null;
 }
 
+export function Chat({ currentUser }: ChatProps) {
+  const [msgs, setMsgs] = useState<any[]>([]);
+  const [text, setText] = useState("");
+  const [typing, setTyping] = useState(false);
+  const subRef = useRef<any>(null);
+  const chatEndRef = useRef<HTMLDivElement>(null);
+  const typingTimeout = useRef<any>(null);
+
+  // colors for users 0–3
+  const userColors: Record<number, string> = {
+    0: "#9b59b6", // purple
+    1: "#3498db", // blue
+    2: "#2ecc71", // green
+    3: "#f1c40f" // yellow
+  };
+
+  const scrollToBottom = () => chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+
+  // load messages + subscribe to realtime inserts
+  useEffect(() => {
+    if (!currentUser) return;
+
+    const loadMessages = async () => {
+      const { data } = await supabase
+        .from("messages")
+        .select("*")
+        .order("created_at", { ascending: true })
+        .limit(200);
+      setMsgs(data ?? []);
+      scrollToBottom();
+    };
+
+    loadMessages();
+
+    subRef.current = supabase
+      .channel("public:messages")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "messages" },
+        (payload) => {
+          setMsgs((prev) => [...prev, payload.new]);
+          scrollToBottom();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      if (subRef.current) supabase.removeChannel(subRef.current);
+    };
+  }, [currentUser]);
 
   const send = async () => {
-    if (!currentUser) return alert('Please login')
+    if (!currentUser || !text.trim()) return;
+
     const payload = {
       sender_id: currentUser.id,
-      sender_name: currentUser.email ?? currentUser.id,
-      text
-    }
-    // try insert; if offline -> queue to localStorage
+      sender_name: currentUser.name,
+      text: text.trim(),
+      avatar_url: currentUser.avatar_url
+    };
+
     try {
-      if (!navigator.onLine) throw new Error('offline')
-      await supabase.from('messages').insert(payload)
-      setText('')
+      await supabase.from("messages").insert(payload);
+      setText("");
+      scrollToBottom();
     } catch (err) {
-      // queue in localStorage
-      const q = JSON.parse(localStorage.getItem('outbox') || '[]')
-      q.push({ ...payload, created_at: new Date().toISOString() })
-      localStorage.setItem('outbox', JSON.stringify(q))
-      setMsgs(prev => [...prev, { ...payload, created_at: new Date().toISOString(), pending: true }])
-      setText('')
+      console.error("Send failed:", err);
+      alert("Failed to send message");
     }
+  };
+
+  const handleTyping = (e: any) => {
+    setText(e.target.value);
+    setTyping(true);
+    if (typingTimeout.current) clearTimeout(typingTimeout.current);
+    typingTimeout.current = setTimeout(() => setTyping(false), 1000);
+  };
+
+  const getBubbleStyle = (m: any) => {
+    const isMine = m.sender_id === currentUser?.id;
+    const userIndex = parseInt(m.sender_id.replace(/\D/g, "")) % 4 || 0;
+    const baseColor = isMine ? "#007bff" : userColors[userIndex] || "#ccc";
+    return { background: baseColor, color: isMine ? "#fff" : "#000" };
+  };
+
+  if (!currentUser) {
+    return <div style={{ padding: 20 }}>Please login to chat</div>;
   }
 
-  // sync outbox when online
-  useEffect(() => {
-    const sync = async () => {
-      const q = JSON.parse(localStorage.getItem('outbox') || '[]')
-      if (q.length === 0) return
-      for (const item of q) {
-        await supabase.from('messages').insert(item)
-      }
-      localStorage.removeItem('outbox')
-    }
-    window.addEventListener('online', sync)
-    return () => window.removeEventListener('online', sync)
-  }, [])
-
   return (
-    <div style={{display:'flex', flexDirection:'column', height:'100%'}}>
-      <div style={{flex:1, overflow:'auto', padding:8}}>
-        {msgs.map((m,i)=>(
-          <div key={i} style={{margin:'6px 0', opacity: m.pending ? 0.6 : 1}}>
-            <strong>{m.sender_name ?? 'anon'}</strong>: {m.text}
-            <div style={{fontSize:11, color:'#666'}}>{new Date(m.created_at).toLocaleString()}</div>
-          </div>
-        ))}
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        height: "100%",
+        border: "1px solid #ccc",
+        borderRadius: 8,
+        overflow: "hidden"
+      }}
+    >
+      {/* top menu / user avatar */}
+      <div
+        style={{
+          padding: 8,
+          borderBottom: "1px solid #ccc",
+          display: "flex",
+          alignItems: "center",
+          background: "#eee"
+        }}
+      >
+        <div
+          style={{
+            width: 30,
+            height: 30,
+            borderRadius: 15,
+            background: "#888",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: "#fff",
+            marginRight: 8
+          }}
+        >
+          {currentUser.name?.[0]?.toUpperCase() ||
+            currentUser.email?.[0]?.toUpperCase() ||
+            "?"}
+        </div>
+        <div style={{ fontWeight: 600 }}>{currentUser.name}</div>
+        {typing && (
+          <div style={{ marginLeft: 8, fontSize: 12, color: "#666" }}>typing...</div>
+        )}
       </div>
-      <div style={{display:'flex', padding:8}}>
-        <input style={{flex:1}} value={text} onChange={e=>setText(e.target.value)} />
-        <button onClick={send} disabled={!text}>Send</button>
+
+      {/* messages */}
+      <div
+        style={{
+          flex: 1,
+          overflowY: "auto",
+          padding: 12,
+          display: "flex",
+          flexDirection: "column",
+          background: "#f5f5f5"
+        }}
+      >
+        {msgs.map((m, i) => {
+          const isMine = m.sender_id === currentUser.id;
+          const bubbleStyle = getBubbleStyle(m);
+          return (
+            <div
+              key={i}
+              style={{
+                alignSelf: isMine ? "flex-end" : "flex-start",
+                padding: "8px 12px",
+                borderRadius: 16,
+                marginBottom: 6,
+                maxWidth: "70%",
+                wordBreak: "break-word",
+                ...bubbleStyle
+              }}
+            >
+              {!isMine && (
+                <div style={{ display: "flex", alignItems: "center", marginBottom: 2 }}>
+                  {m.avatar_url && (
+                    <img
+                      src={m.avatar_url}
+                      style={{ width: 20, height: 20, borderRadius: 10, marginRight: 4 }}
+                    />
+                  )}
+                  <div style={{ fontSize: 10, fontWeight: 600 }}>
+                    {m.sender_name ?? "anon"}
+                  </div>
+                </div>
+              )}
+              {m.text}
+              <div
+                style={{ fontSize: 10, textAlign: "right", marginTop: 4, opacity: 0.7 }}
+              >
+                {new Date(m.created_at).toLocaleTimeString()}
+              </div>
+            </div>
+          );
+        })}
+        <div ref={chatEndRef} />
+      </div>
+
+      {/* input */}
+      <div
+        style={{
+          display: "flex",
+          padding: 8,
+          borderTop: "1px solid #ccc",
+          background: "#fff"
+        }}
+      >
+        <input
+          style={{
+            flex: 1,
+            padding: 8,
+            borderRadius: 20,
+            border: "1px solid #ccc",
+            outline: "none"
+          }}
+          value={text}
+          onChange={handleTyping}
+          placeholder="Type a message..."
+          onKeyDown={(e) => e.key === "Enter" && send()}
+        />
+        <button
+          style={{
+            marginLeft: 8,
+            padding: "8px 16px",
+            borderRadius: 20,
+            border: "none",
+            background: "#007bff",
+            color: "#fff",
+            cursor: "pointer"
+          }}
+          onClick={send}
+          disabled={!text.trim()}
+        >
+          Send
+        </button>
       </div>
     </div>
-  )
+  );
 }

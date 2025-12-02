@@ -14,6 +14,7 @@ import "~/styles/index.css";
 
 export default function App() {
   const [login, setLogin] = useState<boolean>(false);
+  const [currentUser, setCurrentUser] = useState<any>(null); // add this
   const [booting, setBooting] = useState<boolean>(false);
   const [restart, setRestart] = useState<boolean>(false);
   const [sleep, setSleep] = useState<boolean>(false);
@@ -48,6 +49,8 @@ export default function App() {
     return (
       <Desktop
         setLogin={setLogin}
+        currentUser={currentUser} // <-- pass currentUser
+        setCurrentUser={setCurrentUser} // <-- optional, allow Desktop to update it
         shutMac={shutMac}
         sleepMac={sleepMac}
         restartMac={restartMac}
@@ -57,6 +60,7 @@ export default function App() {
     return (
       <Login
         setLogin={setLogin}
+        setCurrentUser={setCurrentUser} // <-- Login sets the logged-in user
         shutMac={shutMac}
         sleepMac={sleepMac}
         restartMac={restartMac}
