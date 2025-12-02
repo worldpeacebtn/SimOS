@@ -1,6 +1,10 @@
-import { createClient } from '@supabase/supabase-js'
+// src/lib/supabase.ts
+import { createClient } from "@supabase/supabase-js";
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL!
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY!
+const url = import.meta.env.VITE_SUPABASE_URL;
+const anon = import.meta.env.VITE_SUPABASE_ANON;
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+if (!url) console.error("❌ Missing VITE_SUPABASE_URL");
+if (!anon) console.error("❌ Missing VITE_SUPABASE_ANON");
+
+export const supabase = createClient(url!, anon!);
