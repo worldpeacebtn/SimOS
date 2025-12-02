@@ -32,6 +32,15 @@ export function Chat({ currentUser }: { currentUser: any }) {
     }
   }, [])
 
+  const loginAsGuest = async () => {
+  const { data, error } = await supabase.auth.signInWithOtp({
+    email: `guest${Date.now()}@example.com`
+  })
+  if (error) return alert(error.message)
+  setCurrentUser({ id: data.user.id, email: data.user.email })
+}
+
+
   const send = async () => {
     if (!currentUser) return alert('Please login')
     const payload = {
